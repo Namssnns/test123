@@ -36,23 +36,24 @@ require(["vs/editor/editor.main"], function () {
        CUSTOM AMAZING COLOR THEME
     ------------------------------------------------------ */
     monaco.editor.defineTheme("amazingLuaTheme", {
-        base: "vs-dark",
-        inherit: true,
-        rules: [
-            { token: "comment", foreground: "5e8bff" },
-            { token: "keyword", foreground: "ff7b72" },
-            { token: "string", foreground: "6affb0" },
-            { token: "number", foreground: "ffbd5e" },
-            { token: "identifier", foreground: "9cdcfe" },
-        ],
-        colors: {
-            "editor.background": "#0d1b2a",
-            "editor.lineHighlightBackground": "#112240aa",
-            "editorCursor.foreground": "#64ffda",
-            "editorLineNumber.foreground": "#4c669f",
-            "editor.selectionBackground": "#145ea8aa"
-        }
-    });
+    base: "vs-dark",
+    inherit: true,
+    rules: [
+        { token: "comment", foreground: "5e8bff" },
+        { token: "keyword", foreground: "ff7b72" },
+        { token: "string", foreground: "6affb0" },
+        { token: "number", foreground: "ffbd5e" },
+        { token: "identifier", foreground: "9cdcfe" },
+    ],
+    colors: {
+        "editor.background": "#161617",
+        "editor.lineHighlightBackground": "#1d1d22aa",
+        "editorCursor.foreground": "#64ffda",
+        "editorLineNumber.foreground": "#4c669f",
+        "editor.selectionBackground": "#2a2a33aa"
+    }
+});
+
 
     /* -----------------------------------------------------
        CUSTOM LUA COMPLETIONS
@@ -95,9 +96,7 @@ require(["vs/editor/editor.main"], function () {
        CREATE EDITOR
     ------------------------------------------------------ */
     const editor = monaco.editor.create(document.getElementById("editor"), {
-        value: `-- Lua Monaco Example
-print("Hello Lua Editor!")
-`,
+        value: `print("Hello World!")`,
         language: "lua",
         theme: "amazingLuaTheme",
         fontSize: 16,
