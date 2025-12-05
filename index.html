@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Monaco — Lua (Amazing Theme)</title>
+  <style>
+    html,body { height:100%; margin:0; background:#0b0f14; }
+    .editor-container { height:100vh; display:flex; flex-direction:column; }
+    .toolbar { height:56px; display:flex; align-items:center; gap:12px; padding:8px 16px; background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-bottom:1px solid rgba(255,255,255,0.03); }
+    .title { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color:#e6f0ff; font-weight:600; }
+    .btn { background:transparent; border:1px solid rgba(255,255,255,0.06); color:#cfe8ff; padding:8px 12px; border-radius:10px; cursor:pointer; font-size:13px }
+    #editor { flex:1; }
+  </style>
+</head>
+<body>
+  <div class="editor-container">
+    <div class="toolbar">
+      <div class="title">Monaco Editor — Lua ("Amazing" Theme)</div>
+      <button class="btn" id="toggleTheme">Toggle Theme</button>
+      <button class="btn" id="format">Format (beautify)</button>
+      <div style="flex:1"></div>
+      <div style="color:#9fbfff; font-size:13px">Language: <strong>Lua</strong></div>
+    </div>
+    <div id="editor"></div>
+  </div>
+
+  <script src="https://unpkg.com/monaco-editor@0.41.0/min/vs/loader.js"></script>
+  <script>
+    // configure loader
+    require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.41.0/min/vs' } });
+    require(['vs/editor/editor.main'], function () {
+      // Register a lightweight Lua language definition (ensures highlighting even if not provided)
+      monaco.languages.register({ id: 'lua' });
+
+      monaco.languages.setMonarchTokensProvider('lua', {
+        defaultToken: '',
+        tokenPostfix: '.lua',
+
+        keywords: [
+          'and','break','do','else','elseif','end','false','for','function','goto','if',
+          'in','local','nil','not','or','repeat','return','then','true','until','while'
+        ],
+
+        operators: [ '=', '>', '<', '!', '~', '?', ':', '==', '<=', '>=', '~=', '+', '-', '*', '/', '^', '%', '..' ],
+
+        // we include common symbols
+        symbols: /[=><!~?:&|+\-*\/\^%]+/,
+
+        // escape sequences
+        escapes: /\\(?:[abfnrtv"'\\]|x[0-9A-Fa-f]{1,2}|u\{[0-9A-Fa-f]+\})/,
+
+        tokenizer: {
+          root: [
+            // short comment --
+            [/(--\[\[).*?(\]\])/, 'comment'],
+            [/--.*$/, 'comment'],
+
+            // long strings [[ ... ]]
+            [/\[\[.*?\]\]/, 'string'],
+
+            // strings
+            [/("(?:[^"\\]|\\.)*")/, 'string'],
+            [/(?:'(?:[^'\\]|\\.)*')/, 'string'],
+
+            // numbers
+            [/\b0x[0-9a-fA-F]+\b/, 'number.hex'],
+            [/\b\d+(?:\.\d+)?(?:e[\+\-]?\d+)?\b/, 'number'],
+
+            // keywords & identifiers
+            [/[a-zA-Z_][\w_]*/, {
+              cases: {
+                '@keywords': 'keyword',
+                '@default': 'identifier'
+              }
+            }],
+
+            // operators
+            [/@symbols/, 'operator'],
+
+            // brackets
+            [/\{/, 'delimiter.curly'],
+            [/\}/, 'delimiter.curly'],
+            [/\(/, 'delimiter.parenthesis'],
+            [/\)/, 'delimiter.parenthesis'],
+            [/\[/, 'delimiter.square'],
+            [/\]/, 'delimiter.square'],
+          ]
+        }
+      });
+
+      // Define an "amazing" theme with vivid accents and soft dark background
+      monaco.editor.defineTheme('amazing-dark', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+          { token: 'comment', foreground: '6c7a89', fontStyle: 'italic' },
+          { token: 'keyword', foreground: '7ee787', fontStyle: 'bold' },
+          { token: 'number', foreground: 'ffb454' },
+          { token: 'number.hex', foreground: 'ff8b8b' },
+          { token: 'string', foreground: 'f6c177' },
+          { token: 'operator', foreground: 'c0c0ff' },
+          { token: 'identifier', foreground: 'cfe8ff' },
+          { token: 'delimiter.curly', foreground: 'b7b7ff' },
+        ],
+        colors: {
+          'editor.background': '#071019',
+          'editor.foreground': '#cfe8ff',
+          'editorCursor.foreground': '#ffcc66',
+          'editorLineNumber.foreground': '#233d55',
+          'editorLineNumber.activeForeground': '#7fd1ff',
+          'editor.selectionBackground': '#2b4b5a',
+          'editor.inactiveSelectionBackground': '#22303a',
+          'editorIndentGuide.background': '#0f2430',
+          'editorIndentGuide.activeBackground': '#23475a',
+          'editorWhitespace.foreground': '#0f2430',
+          'editorBracketMatch.background': '#0b3947',
+          'editorBracketMatch.border': '#2fa6c8'
+        }
+      });
+
+      // Create the editor
+      const editor = monaco.editor.create(document.getElementById('editor'), {
+        value: `-- Welcome to the amazing Lua-themed Monaco editor\n-- Try editing this sample code\n\nlocal function fib(n)\n  if n <= 1 then return n end\n  return fib(n-1) + fib(n-2)\nend\n\nfor i = 0, 10 do\n  print(i, fib(i))\nend\n`,
+        language: 'lua',
+        theme: 'amazing-dark',
+        automaticLayout: true,
+        minimap: { enabled: true },
+        fontFamily: 'Fira Code, Menlo, Monaco, monospace',
+        fontLigatures: true,
+        fontSize: 14,
+        lineNumbers: 'on',
+        roundedSelection: true,
+        glyphMargin: true,
+        folding: true,
+        renderWhitespace: 'boundary',
+        smoothScrolling: true,
+        contextmenu: true,
+        scrollbar: { verticalScrollbarSize: 12, horizontalScrollbarSize: 12 }
+      });
+
+      // Simple format action (very small beautifier for Lua-ish style)
+      function simpleFormat(code) {
+        // naive: add spaces around operators and normalize indentation of `end`/`function`/`for`/`if`
+        const lines = code.split('\n');
+        let indent = 0;
+        const out = lines.map(raw => {
+          let line = raw.trim();
+          if (/^end\b/.test(line) || /^elseif\b/.test(line) || /^else\b/.test(line) || /^until\b/.test(line)) {
+            indent = Math.max(0, indent - 1);
+          }
+          const spaced = line.replace(/(\S)([=><!~?:+\-/*%^]+)(\S)/g, '$1 $2 $3');
+          const indented = '  '.repeat(indent) + spaced;
+          if (/\b(function|for|if|repeat)\b/.test(line) && !/\bend\b/.test(line)) {
+            indent++;
+          }
+          return indented;
+        });
+        return out.join('\n');
+      }
+
+      document.getElementById('format').addEventListener('click', () => {
+        const code = editor.getValue();
+        editor.setValue(simpleFormat(code));
+      });
+
+      // toggle theme between amazing-dark and vs-light
+      let dark = true;
+      document.getElementById('toggleTheme').addEventListener('click', () => {
+        dark = !dark;
+        monaco.editor.setTheme(dark ? 'amazing-dark' : 'vs-light');
+      });
+
+      // example: add a hover provider for small tooltips
+      monaco.languages.registerHoverProvider('lua', {
+        provideHover: function(model, position) {
+          const word = model.getWordAtPosition(position);
+          if (!word) return null;
+          const w = word.word;
+          if (w === 'fib') {
+            return { contents: [{ value: '**fib(n)** — recursive Fibonacci example' }] };
+          }
+          return null;
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
